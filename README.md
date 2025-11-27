@@ -1,6 +1,8 @@
 # RéviCollège 🎓
 
-![Aperçu de l'application](image.png)
+<img width="567" height="534" alt="{216FE520-82C9-452C-80A9-3791F414C39C}" src="https://github.com/user-attachments/assets/2f807d15-73f1-4a30-8df5-1fac209fd2e5" />
+<img width="523" height="795" alt="{F7AFC7A8-9845-4606-B241-B0876E770F79}" src="https://github.com/user-attachments/assets/16725278-10ab-4332-9e8c-a4f8cf4903c1" />
+
 
 **RéviCollège** est une application web éducative complète, ergonomique et moderne, conçue pour aider les collégiens français (de la 6ème à la 3ème) à réviser toutes les matières conformément au programme officiel.
 

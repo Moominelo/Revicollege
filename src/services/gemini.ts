@@ -2,7 +2,22 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { SheetContent, QuizContent, QuizConfig, GradingResult, ChartContent } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// --- LAZY INITIALIZATION ---
+// On n'initialise pas tout de suite pour éviter le crash au chargement de la page
+// si la clé API est mal configurée ou absente au démarrage.
+let aiInstance: GoogleGenAI | null = null;
+
+const getAI = () => {
+  if (!aiInstance) {
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+      console.error("API_KEY manquante ! Vérifiez votre configuration Vercel.");
+      throw new Error("Clé API manquante. Impossible de contacter l'IA.");
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+};
 
 // --- SCHEMAS ---
 
@@ -118,6 +133,7 @@ const GRADING_SCHEMA: Schema = {
 
 export async function askQuickQuestion(question: string): Promise<string> {
   try {
+    const ai = getAI();
     const prompt = `Tu es un assistant pédagogique virtuel pour des collégiens français (11-15 ans).
     
     Ta mission : Répondre à une question rapide sur un cours.
@@ -138,12 +154,13 @@ export async function askQuickQuestion(question: string): Promise<string> {
     return response.text || "Désolé, je n'ai pas pu traiter ta demande.";
   } catch (error) {
     console.error("Error asking quick question:", error);
-    return "Une erreur de connexion est survenue.";
+    return "Une erreur de connexion est survenue. Vérifiez votre clé API.";
   }
 }
 
 export async function generateRevisionSheet(level: string, subject: string, topic: string): Promise<SheetContent | null> {
   try {
+    const ai = getAI();
     const isMath = subject === 'Mathématiques';
     const isSVT = subject === 'SVT';
     
@@ -190,6 +207,7 @@ export async function generateRevisionSheet(level: string, subject: string, topi
 
 export async function getCopyExplanation(instruction: string, copy: string): Promise<string> {
   try {
+    const ai = getAI();
     const prompt = `Agis comme un professeur correcteur expert.
     Consigne : "${instruction}"
     Copie de l'élève (modèle) : "${copy}"
@@ -214,6 +232,7 @@ export async function getCopyExplanation(instruction: string, copy: string): Pro
 
 export async function getReformulatedCopy(copy: string, complexity: 'SIMPLE' | 'EXPERT'): Promise<string> {
   try {
+    const ai = getAI();
     let instruction = "";
     if (complexity === 'SIMPLE') {
       instruction = "Reformule cette copie pour un élève en difficulté : utilise des phrases plus courtes, un vocabulaire plus simple, et explique davantage les sous-entendus. Garde le même sens.";
@@ -238,6 +257,7 @@ export async function getReformulatedCopy(copy: string, complexity: 'SIMPLE' | '
 
 export async function getNewExamSample(level: string, subject: string, topic: string): Promise<SheetContent['examSample'] | null> {
   try {
+    const ai = getAI();
     const schema: Schema = {
       type: Type.OBJECT,
       properties: {
@@ -272,6 +292,7 @@ export async function getNewExamSample(level: string, subject: string, topic: st
 
 export async function getNewChartData(level: string, topic: string): Promise<ChartContent | null> {
   try {
+    const ai = getAI();
     const prompt = `Génère UNIQUEMENT des données chiffrées pour un graphique SVT pertinent sur le thème "${topic}" (Niveau ${level}).
     Exemple: Évolution d'une population, Rythme cardiaque, Taux d'O2...
     Je veux titre, axes et data points.`;
@@ -299,6 +320,7 @@ export async function getNewChartData(level: string, topic: string): Promise<Cha
 
 export async function generateQuiz(level: string, subject: string, topic: string, config: QuizConfig): Promise<QuizContent | null> {
   try {
+    const ai = getAI();
     const { questionCount, difficulty } = config;
     
     let difficultyPrompt = "";
@@ -340,6 +362,7 @@ export async function generateQuiz(level: string, subject: string, topic: string
 
 export async function generateBrevetQuiz(): Promise<QuizContent | null> {
   try {
+    const ai = getAI();
     const prompt = `Tu es un examinateur officiel du Brevet des Collèges.
     Génère un QUIZ "Brevet Blanc" de 20 questions couvrant les 4 épreuves principales pour un élève de 3ème :
     - 5 questions de Mathématiques (Algèbre, Géométrie, Proba).
@@ -373,6 +396,7 @@ export async function generateBrevetQuiz(): Promise<QuizContent | null> {
 
 export async function generateAnnalesQuiz(yearTopic: string): Promise<QuizContent | null> {
   try {
+    const ai = getAI();
     const prompt = `ROLE: Tu es une base de données d'archives du Diplôme National du Brevet (DNB).
     
     MISSION: Restituer 5 exercices emblématiques issus du sujet : "${yearTopic}".
@@ -409,6 +433,7 @@ export async function generateAnnalesQuiz(yearTopic: string): Promise<QuizConten
 
 export async function gradeStudentAnswer(question: string, studentAnswer: string, correctAnswerContext: string, level: string): Promise<GradingResult> {
   try {
+    const ai = getAI();
     const prompt = `Tu es un professeur de collège (${level}). Tu dois corriger la réponse d'un élève.
     
     Question : "${question}"

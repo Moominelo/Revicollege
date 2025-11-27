@@ -71,15 +71,53 @@ const App: React.FC = () => {
     }
   }, [sheetContent]);
 
-  const resetSelection = () => {
+  // FONCTION DE NETTOYAGE COMPLÈTE (Interne)
+  const resetAllState = () => {
+    // Selection
     setSelectedLevel(null);
     setSelectedSubject(null);
     setSelectedTopic(null);
     setCustomTopic('');
-    setAppState('SELECTION');
+    
+    // Content
+    setSheetContent(null);
+    setCurrentExamSample(null);
+    setCopyVariant('ORIGINAL');
+    setCachedCopies({});
+    setExplanation(null);
+    setCurrentChartData(null);
+    
+    // Quiz
+    setQuizContent(null);
+    setCurrentQuestionIndex(0);
+    setScore(0);
+    setShowAnswer(false);
+    setSelectedAnswerIndex(null);
+    setUserTextAnswer("");
+    setGradingResult(null);
+    setQuizConfig({ questionCount: 10, difficulty: 'revision' });
+    
+    // Quick Question
+    setQuickQuestion("");
+    setQuickAnswer(null);
+  };
+
+  const handleGoHome = () => {
+    // On force un rechargement complet de la page pour une remise à zéro radicale
+    window.location.reload();
   };
 
   const handleStart = () => {
+    resetAllState();
+    setAppState('SELECTION');
+  };
+
+  const resetSelection = () => {
+    // Partial reset when just changing topic
+    setSelectedLevel(null);
+    setSelectedSubject(null);
+    setSelectedTopic(null);
+    setCustomTopic('');
     setAppState('SELECTION');
   };
 
@@ -357,36 +395,36 @@ const App: React.FC = () => {
   // --- RENDER HELPERS ---
 
   const renderHome = () => (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4 py-8">
-      <div className="bg-indigo-100 p-6 rounded-full mb-8 animate-bounce">
-        <GraduationCap className="w-16 h-16 text-indigo-600" />
+    <div className="flex flex-col items-center justify-center min-h-[85vh] text-center px-4 py-8">
+      <div className="bg-indigo-100 p-4 sm:p-6 rounded-full mb-6 sm:mb-8 animate-bounce">
+        <GraduationCap className="w-12 h-12 sm:w-16 sm:h-16 text-indigo-600" />
       </div>
-      <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight">
+      <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-slate-900 mb-4 sm:mb-6 tracking-tight leading-tight">
         Révise ton Collège <br />
         <span className="text-indigo-600">simplement & efficacement</span>
       </h1>
-      <p className="text-xl text-slate-600 max-w-2xl mb-10 leading-relaxed">
-        Accède à des fiches de révision sur mesure et des quiz interactifs pour toutes les matières de la 6ème à la 3ème. Conforme au programme officiel.
+      <p className="text-base sm:text-xl text-slate-600 max-w-2xl mb-8 sm:mb-10 leading-relaxed px-2">
+        Accède à des fiches de révision sur mesure et des quiz interactifs pour toutes les matières de la 6ème à la 3ème.
       </p>
       
       <div className="flex flex-col w-full max-w-md gap-4">
-        <Button size="lg" onClick={handleStart} className="shadow-xl shadow-indigo-200 w-full">
+        <Button size="lg" onClick={handleStart} className="shadow-xl shadow-indigo-200 w-full py-4 text-lg">
           Commencer à réviser <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
 
         {/* Quick Question Box */}
-        <div className="mt-8 bg-white p-5 rounded-2xl shadow-lg border border-slate-200 text-left relative overflow-hidden">
+        <div className="mt-6 sm:mt-8 bg-white p-4 sm:p-5 rounded-2xl shadow-lg border border-slate-200 text-left relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-400 to-indigo-400"></div>
           <div className="flex items-center gap-2 mb-3">
             <MessageCircle className="w-5 h-5 text-indigo-500" />
-            <h3 className="font-bold text-slate-800">Une question rapide sur un cours ?</h3>
+            <h3 className="font-bold text-slate-800 text-sm sm:text-base">Une question rapide sur un cours ?</h3>
           </div>
           
           <form onSubmit={handleQuickQuestionSubmit} className="relative">
             <input 
               type="text" 
-              placeholder="Ex: C'est quoi le théorème de Thalès ?" 
-              className="w-full pl-4 pr-12 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-sm"
+              placeholder="Ex: C'est quoi Pythagore ?" 
+              className="w-full pl-4 pr-12 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-base"
               value={quickQuestion}
               onChange={(e) => setQuickQuestion(e.target.value)}
             />
@@ -402,7 +440,7 @@ const App: React.FC = () => {
           {/* Quick Answer Display */}
           {quickAnswer && (
              <div className="mt-4 bg-indigo-50 p-4 rounded-xl text-sm text-slate-700 border border-indigo-100 relative animate-in fade-in slide-in-from-top-2">
-               <button onClick={() => setQuickAnswer(null)} className="absolute top-2 right-2 text-indigo-300 hover:text-indigo-500">
+               <button onClick={() => setQuickAnswer(null)} className="absolute top-2 right-2 text-indigo-300 hover:text-indigo-500 p-1">
                  <X className="w-4 h-4" />
                </button>
                <span className="font-bold text-indigo-600 block mb-1">Réponse :</span>
@@ -418,10 +456,10 @@ const App: React.FC = () => {
   );
 
   const renderSelection = () => (
-    <div className="max-w-3xl mx-auto w-full py-10 px-4">
-      <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center">Configure ta séance</h2>
+    <div className="max-w-3xl mx-auto w-full py-6 px-4 sm:py-10">
+      <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-6 sm:mb-8 text-center">Configure ta séance</h2>
       
-      <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 space-y-8">
+      <div className="bg-white p-5 sm:p-8 rounded-2xl shadow-xl border border-slate-100 space-y-6 sm:space-y-8">
         {/* LEVEL SELECTION */}
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-2">Niveau</label>
@@ -430,7 +468,7 @@ const App: React.FC = () => {
               <button
                 key={lvl}
                 onClick={() => { setSelectedLevel(lvl); setSelectedSubject(null); setSelectedTopic(null); setCustomTopic(''); }}
-                className={`p-3 rounded-xl border-2 transition-all font-bold ${
+                className={`p-3 sm:p-4 rounded-xl border-2 transition-all font-bold text-sm sm:text-base ${
                   selectedLevel === lvl 
                     ? 'border-indigo-500 bg-indigo-50 text-indigo-700' 
                     : 'border-slate-200 hover:border-indigo-300 text-slate-600'
@@ -462,7 +500,7 @@ const App: React.FC = () => {
                       else setSelectedTopic(null); 
                       setCustomTopic(''); 
                     }}
-                    className={`p-4 rounded-xl border text-left transition-all flex items-center gap-3 ${
+                    className={`p-3 sm:p-4 rounded-xl border text-left transition-all flex items-center gap-2 sm:gap-3 ${
                       selectedSubject === subj.name
                         ? isBrevet || isAnnales
                           ? 'border-amber-500 bg-amber-50 text-amber-900 ring-1 ring-amber-500'
@@ -472,11 +510,11 @@ const App: React.FC = () => {
                           : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                     } ${isFullWidth ? 'col-span-2 md:col-span-3' : ''}`}
                   >
-                    <span className="text-2xl" role="img" aria-label={subj.name}>
+                    <span className="text-xl sm:text-2xl" role="img" aria-label={subj.name}>
                       {SUBJECTS_ICONS[subj.name] || '📚'}
                     </span>
-                    <span className="font-medium text-sm">{subj.name}</span>
-                    {(isBrevet || isAnnales) && <span className="ml-auto text-xs bg-amber-200 text-amber-900 px-2 py-1 rounded-full">Examen</span>}
+                    <span className="font-medium text-xs sm:text-sm">{subj.name}</span>
+                    {(isBrevet || isAnnales) && <span className="ml-auto text-[10px] sm:text-xs bg-amber-200 text-amber-900 px-2 py-1 rounded-full">Examen</span>}
                   </button>
                 );
               })}
@@ -493,7 +531,7 @@ const App: React.FC = () => {
             <select
               value={selectedTopic || ''}
               onChange={(e) => { setSelectedTopic(e.target.value); if (e.target.value !== CUSTOM_TOPIC_TRIGGER) setCustomTopic(''); }}
-              className="w-full p-4 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-800 font-medium focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all"
+              className="w-full p-3 sm:p-4 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-800 font-medium focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all text-base"
             >
               <option value="">-- Choisir --</option>
               {getSubjectsForLevel(selectedLevel)
@@ -512,15 +550,15 @@ const App: React.FC = () => {
                 type="text"
                 value={customTopic}
                 onChange={(e) => setCustomTopic(e.target.value)}
-                placeholder="Ex: Le Petit Prince, Les Misérables..."
-                className="w-full p-4 rounded-xl border-2 border-indigo-200 bg-indigo-50/50 text-indigo-900 font-medium focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all"
+                placeholder="Ex: Le Petit Prince..."
+                className="w-full p-3 sm:p-4 rounded-xl border-2 border-indigo-200 bg-indigo-50/50 text-indigo-900 font-medium focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all text-base"
                 autoFocus
              />
            </div>
         )}
 
         {/* SUBMIT */}
-        <div className="pt-4">
+        <div className="pt-2 sm:pt-4">
           {selectedSubject === 'Brevet Blanc' ? (
              <Button 
                onClick={handleLaunchBrevet}
@@ -565,28 +603,28 @@ const App: React.FC = () => {
     if (copyVariant === 'EXPERT' && cachedCopies.EXPERT) displayText = cachedCopies.EXPERT;
 
     return (
-      <div id="printable-sheet" className="max-w-4xl mx-auto w-full py-8 px-4 animate-in fade-in slide-in-from-bottom-8 duration-500 sheet-container">
-        <div className="flex justify-between items-center mb-6 no-print" data-html2canvas-ignore="true">
-          <Button variant="outline" size="sm" onClick={resetSelection}>
+      <div id="printable-sheet" className="max-w-4xl mx-auto w-full py-4 px-2 sm:px-4 sm:py-8 animate-in fade-in slide-in-from-bottom-8 duration-500 sheet-container">
+        <div className="flex flex-col-reverse sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0 no-print" data-html2canvas-ignore="true">
+          <Button variant="outline" size="sm" onClick={resetSelection} className="w-full sm:w-auto">
             ← Changer de thème
           </Button>
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm" onClick={handlePrint} className="flex items-center gap-2">
-              <Printer className="w-4 h-4" /> Imprimer / PDF
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button variant="secondary" size="sm" onClick={handlePrint} className="flex-1 sm:flex-initial items-center justify-center gap-2">
+              <Printer className="w-4 h-4" /> <span className="sm:inline">PDF</span>
             </Button>
-            <span className="text-sm font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100 flex items-center">
+            <span className="text-xs sm:text-sm font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100 flex items-center whitespace-nowrap overflow-hidden text-ellipsis">
               {selectedLevel} • {selectedSubject}
             </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
-          <div className="bg-indigo-600 p-8 text-white relative overflow-hidden">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+          <div className="bg-indigo-600 p-5 sm:p-8 text-white relative overflow-hidden">
             <div className="relative z-10">
-              <h2 className="text-3xl font-extrabold mb-2">{sheetContent.title}</h2>
-              <div className="flex flex-wrap gap-2 mt-4">
+              <h2 className="text-2xl sm:text-3xl font-extrabold mb-2 leading-tight">{sheetContent.title}</h2>
+              <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
                  {sheetContent.objectives.map((obj, i) => (
-                   <span key={i} className="bg-white/20 backdrop-blur-sm text-sm px-3 py-1 rounded-full text-indigo-50 border border-indigo-400/30">
+                   <span key={i} className="bg-white/20 backdrop-blur-sm text-xs px-2 py-1 sm:px-3 sm:py-1 rounded-full text-indigo-50 border border-indigo-400/30">
                      🎯 {obj}
                    </span>
                  ))}
@@ -595,10 +633,10 @@ const App: React.FC = () => {
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2 no-print" data-html2canvas-ignore="true"></div>
           </div>
 
-          <div className="p-8 space-y-10">
+          <div className="p-4 sm:p-8 space-y-8 sm:space-y-10">
             {/* GeoGebra Integration for Maths */}
             {sheetContent.geogebraCommand && (
-               <div data-html2canvas-ignore="true">
+               <div data-html2canvas-ignore="true" className="-mx-2 sm:mx-0">
                   <GeoGebraViewer command={sheetContent.geogebraCommand} />
                </div>
             )}
@@ -614,17 +652,17 @@ const App: React.FC = () => {
 
             {/* Key Points */}
             <section style={{ pageBreakInside: 'avoid' }}>
-              <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-600 no-print" data-html2canvas-ignore="true">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2 mb-3 sm:mb-4">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-600 no-print" data-html2canvas-ignore="true">
                   ⚡
                 </div>
                 L'essentiel à retenir
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-2 sm:space-y-3">
                 {sheetContent.keyPoints.map((point, i) => (
                   <li key={i} className="flex items-start gap-3 bg-yellow-50/50 p-3 rounded-lg border border-yellow-100/50">
                     <CheckCircle2 className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700 font-medium">{point}</span>
+                    <span className="text-slate-700 font-medium text-sm sm:text-base">{point}</span>
                   </li>
                 ))}
               </ul>
@@ -632,28 +670,28 @@ const App: React.FC = () => {
 
              {/* Detailed Content */}
              <section style={{ pageBreakInside: 'avoid' }}>
-              <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 no-print" data-html2canvas-ignore="true">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2 mb-3 sm:mb-4">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 no-print" data-html2canvas-ignore="true">
                   📖
                 </div>
                 Comprendre le cours
               </h3>
-              <div className="prose prose-slate max-w-none text-slate-600 bg-slate-50 p-6 rounded-xl border border-slate-100 leading-relaxed whitespace-pre-line">
+              <div className="prose prose-slate max-w-none text-slate-600 bg-slate-50 p-4 sm:p-6 rounded-xl border border-slate-100 leading-relaxed whitespace-pre-line text-sm sm:text-base">
                 {sheetContent.detailedContent}
               </div>
             </section>
 
             {/* Examples */}
             <section style={{ pageBreakInside: 'avoid' }}>
-              <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 no-print" data-html2canvas-ignore="true">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2 mb-3 sm:mb-4">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 no-print" data-html2canvas-ignore="true">
                   💡
                 </div>
                 Exemples concrets
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
                 {sheetContent.examples.map((ex, i) => (
-                  <div key={i} className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-blue-800 italic flex gap-3">
+                  <div key={i} className="bg-blue-50/50 p-3 sm:p-4 rounded-xl border border-blue-100 text-blue-800 italic flex gap-3 text-sm sm:text-base">
                     <span className="text-2xl opacity-50">“</span>
                     {ex}
                   </div>
@@ -662,17 +700,17 @@ const App: React.FC = () => {
             </section>
 
             {/* Perfect Copy / Exam Sample - INTERACTIVE */}
-            <section style={{ pageBreakInside: 'avoid' }} className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100 relative">
+            <section style={{ pageBreakInside: 'avoid' }} className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-4 sm:p-6 border border-indigo-100 relative">
               
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                 <h3 className="text-xl font-bold text-indigo-900 flex items-center gap-2">
-                   <PenTool className="w-6 h-6" />
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3">
+                 <h3 className="text-lg sm:text-xl font-bold text-indigo-900 flex items-center gap-2">
+                   <PenTool className="w-5 h-5 sm:w-6 sm:h-6" />
                    Vers la mention Très Bien
                  </h3>
                  <button 
                     onClick={handleNewExamSample} 
                     disabled={isProcessingCopy}
-                    className="text-xs font-bold text-indigo-600 bg-white border border-indigo-200 px-3 py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50 no-print"
+                    className="text-xs font-bold text-indigo-600 bg-white border border-indigo-200 px-3 py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50 no-print w-full sm:w-auto justify-center"
                     data-html2canvas-ignore="true"
                  >
                    {isProcessingCopy ? <div className="w-3 h-3 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin"/> : <RefreshCcw className="w-3 h-3" />}
@@ -680,11 +718,11 @@ const App: React.FC = () => {
                  </button>
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Instruction */}
-                <div className="bg-white p-5 rounded-xl shadow-sm border border-indigo-100">
+                <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-indigo-100">
                   <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-2 block">Consigne</span>
-                  <p className="font-semibold text-slate-800">{displaySample.instruction}</p>
+                  <p className="font-semibold text-slate-800 text-sm sm:text-base">{displaySample.instruction}</p>
                 </div>
 
                 {/* Interactive Copy Section */}
@@ -695,28 +733,28 @@ const App: React.FC = () => {
                     <div className="flex flex-wrap items-center justify-between gap-2 p-2 bg-teal-100/50 border-b border-teal-200 no-print" data-html2canvas-ignore="true">
                        <div className="flex items-center gap-1 px-2">
                          <Star className="w-4 h-4 text-teal-600" />
-                         <span className="text-xs font-bold text-teal-800 uppercase tracking-wider">Copie Parfaite</span>
+                         <span className="text-[10px] sm:text-xs font-bold text-teal-800 uppercase tracking-wider">Copie Parfaite</span>
                        </div>
                        
-                       <div className="flex gap-1">
+                       <div className="flex gap-1 overflow-x-auto pb-1 sm:pb-0">
                           <button 
                             onClick={() => handleChangeVariant('SIMPLE')}
                             disabled={isProcessingCopy}
-                            className={`px-3 py-1 rounded-md text-xs font-bold transition-colors flex items-center gap-1 ${copyVariant === 'SIMPLE' ? 'bg-teal-600 text-white' : 'bg-white text-teal-700 hover:bg-teal-50'}`}
+                            className={`px-2 py-1 sm:px-3 rounded-md text-[10px] sm:text-xs font-bold transition-colors flex items-center gap-1 ${copyVariant === 'SIMPLE' ? 'bg-teal-600 text-white' : 'bg-white text-teal-700 hover:bg-teal-50'}`}
                           >
                              <Baby className="w-3 h-3" /> Simplifier
                           </button>
                           <button 
                             onClick={() => handleChangeVariant('ORIGINAL')}
                             disabled={isProcessingCopy}
-                            className={`px-3 py-1 rounded-md text-xs font-bold transition-colors ${copyVariant === 'ORIGINAL' ? 'bg-teal-600 text-white' : 'bg-white text-teal-700 hover:bg-teal-50'}`}
+                            className={`px-2 py-1 sm:px-3 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${copyVariant === 'ORIGINAL' ? 'bg-teal-600 text-white' : 'bg-white text-teal-700 hover:bg-teal-50'}`}
                           >
                              Standard
                           </button>
                           <button 
                             onClick={() => handleChangeVariant('EXPERT')}
                             disabled={isProcessingCopy}
-                            className={`px-3 py-1 rounded-md text-xs font-bold transition-colors flex items-center gap-1 ${copyVariant === 'EXPERT' ? 'bg-teal-600 text-white' : 'bg-white text-teal-700 hover:bg-teal-50'}`}
+                            className={`px-2 py-1 sm:px-3 rounded-md text-[10px] sm:text-xs font-bold transition-colors flex items-center gap-1 ${copyVariant === 'EXPERT' ? 'bg-teal-600 text-white' : 'bg-white text-teal-700 hover:bg-teal-50'}`}
                           >
                              <BrainCircuit className="w-3 h-3" /> Expert
                           </button>
@@ -724,22 +762,22 @@ const App: React.FC = () => {
                     </div>
 
                     {/* Content */}
-                    <div className="p-5 bg-teal-50 relative min-h-[150px]">
+                    <div className="p-4 sm:p-5 bg-teal-50 relative min-h-[150px]">
                       {isProcessingCopy ? (
                          <div className="absolute inset-0 flex items-center justify-center bg-teal-50/80 backdrop-blur-sm z-10" data-html2canvas-ignore="true">
                             <LoadingSpinner message="Rédaction en cours..." />
                          </div>
                       ) : null}
                       
-                      <p className="whitespace-pre-line leading-relaxed text-slate-700 font-serif text-lg">
+                      <p className="whitespace-pre-line leading-relaxed text-slate-700 font-serif text-base sm:text-lg">
                         {displayText}
                       </p>
 
-                      <div className="mt-6 pt-4 border-t border-teal-200 flex justify-end no-print" data-html2canvas-ignore="true">
+                      <div className="mt-4 sm:mt-6 pt-4 border-t border-teal-200 flex justify-end no-print" data-html2canvas-ignore="true">
                          <button 
                            onClick={handleExplainCopy}
                            disabled={isProcessingCopy}
-                           className="text-sm font-semibold text-teal-700 hover:text-teal-900 flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-teal-100 transition-colors"
+                           className="text-xs sm:text-sm font-semibold text-teal-700 hover:text-teal-900 flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-teal-100 transition-colors w-full sm:w-auto justify-center"
                          >
                             <Lightbulb className="w-4 h-4" />
                             {explanation ? "Masquer l'analyse" : "Analyser cette copie"}
@@ -749,7 +787,7 @@ const App: React.FC = () => {
 
                     {/* Explanation Drawer */}
                     {explanation && (
-                       <div className="bg-yellow-50 p-5 border-t border-yellow-200 animate-in slide-in-from-top-2">
+                       <div className="bg-yellow-50 p-4 sm:p-5 border-t border-yellow-200 animate-in slide-in-from-top-2">
                           <h4 className="text-sm font-bold text-yellow-800 uppercase mb-2 flex items-center gap-2">
                              <Wand2 className="w-4 h-4" /> Analyse du professeur
                           </h4>
@@ -761,7 +799,7 @@ const App: React.FC = () => {
                    </div>
                 </div>
 
-                <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 flex gap-3 text-sm text-orange-800">
+                <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 flex flex-col sm:flex-row gap-2 sm:gap-3 text-sm text-orange-800">
                   <div className="font-bold flex-shrink-0">Conseil :</div>
                   <p>{displaySample.tips}</p>
                 </div>
@@ -770,9 +808,9 @@ const App: React.FC = () => {
           </div>
 
           {/* Action Bar */}
-          <div className="p-6 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row gap-4 justify-center items-center no-print" data-html2canvas-ignore="true">
+          <div className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row gap-4 justify-center items-center no-print" data-html2canvas-ignore="true">
             <p className="text-slate-500 text-sm font-medium">As-tu bien tout compris ?</p>
-            <Button onClick={handleSetupQuiz} size="lg" variant="secondary" className="w-full sm:w-auto shadow-teal-200">
+            <Button onClick={handleSetupQuiz} size="lg" variant="secondary" className="w-full sm:w-auto shadow-teal-200 justify-center">
               Lancer le Quiz <span className="ml-2">📝</span>
             </Button>
           </div>
@@ -782,12 +820,12 @@ const App: React.FC = () => {
   };
 
   const renderQuizSetup = () => (
-    <div className="max-w-xl mx-auto w-full py-12 px-4 animate-in fade-in slide-in-from-bottom-8">
-      <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 text-center">
+    <div className="max-w-xl mx-auto w-full py-8 px-4 sm:py-12 animate-in fade-in slide-in-from-bottom-8">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100 text-center">
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Paramètre ton Quiz</h2>
-        <p className="text-slate-500 mb-8">Choisis la longueur et la difficulté de ton entraînement.</p>
+        <p className="text-slate-500 mb-8">Choisis la longueur et la difficulté.</p>
 
-        <div className="space-y-8 text-left">
+        <div className="space-y-6 sm:space-y-8 text-left">
           {/* Question Count */}
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-3">Nombre de questions</label>
@@ -828,7 +866,7 @@ const App: React.FC = () => {
                 >
                   <div className="text-2xl bg-white p-2 rounded-lg shadow-sm">{opt.emoji}</div>
                   <div>
-                    <div className="font-bold">{opt.label}</div>
+                    <div className="font-bold text-sm sm:text-base">{opt.label}</div>
                     <div className="text-xs opacity-70 font-normal">{opt.desc}</div>
                   </div>
                 </button>
@@ -837,7 +875,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-10 flex gap-3">
+        <div className="mt-8 sm:mt-10 flex gap-3">
             <Button variant="outline" onClick={() => setAppState('SHEET')} className="flex-1">
               Retour
             </Button>
@@ -858,7 +896,7 @@ const App: React.FC = () => {
     const isDictation = !!currentQuestion.textToRead;
 
     return (
-      <div className="max-w-2xl mx-auto w-full py-10 px-4">
+      <div className="max-w-2xl mx-auto w-full py-6 px-4 sm:py-10">
         {/* Header Quiz */}
         <div className="flex justify-between items-end mb-4">
              <div className="flex gap-2">
@@ -867,15 +905,15 @@ const App: React.FC = () => {
                </Button>
                {isAnnales && (
                  <Button variant="outline" size="sm" onClick={handleOpenSourcePDF} className="text-xs py-1 px-2 h-auto text-teal-700 border-teal-200 bg-teal-50 hover:bg-teal-100 flex items-center gap-1">
-                   <FileText className="w-3 h-3" /> Voir PDF original
+                   <FileText className="w-3 h-3" /> <span className="hidden sm:inline">Voir PDF</span>
                  </Button>
                )}
              </div>
              <div className="text-right">
-               <div className="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">
+               <div className="text-[10px] sm:text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">
                  {isBrevet || isAnnales ? 'BREVET BLANC' : quizContent.difficulty.toUpperCase()}
                </div>
-               <div className="text-slate-900 font-bold">Score: {score}</div>
+               <div className="text-slate-900 font-bold text-sm">Score: {score}</div>
              </div>
         </div>
 
@@ -884,7 +922,7 @@ const App: React.FC = () => {
           <span>Question {currentQuestionIndex + 1} / {quizContent.questions.length}</span>
         </div>
         
-        <div className="w-full bg-slate-200 h-2 rounded-full mb-8 overflow-hidden">
+        <div className="w-full bg-slate-200 h-2 rounded-full mb-6 sm:mb-8 overflow-hidden">
           <div 
             className="bg-indigo-500 h-full transition-all duration-500 ease-out"
             style={{ width: `${((currentQuestionIndex + 1) / quizContent.questions.length) * 100}%` }}
@@ -892,12 +930,12 @@ const App: React.FC = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
-          <div className="flex justify-between items-start gap-4 mb-6">
-             <h2 className="text-xl md:text-2xl font-bold text-slate-800 leading-snug">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-5 sm:p-8 border border-slate-100">
+          <div className="flex flex-col-reverse sm:flex-row justify-between items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
+             <h2 className="text-lg md:text-2xl font-bold text-slate-800 leading-snug">
                {currentQuestion.question}
              </h2>
-             <span className="shrink-0 text-xs font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded">
+             <span className="shrink-0 text-[10px] sm:text-xs font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded self-start">
                 {isDictation ? 'DICTÉE' : (isMCQ ? 'QCM' : 'RÉDACTION')}
              </span>
           </div>
@@ -908,9 +946,9 @@ const App: React.FC = () => {
                <button
                  onClick={() => handlePlayAudio(currentQuestion.textToRead!)}
                  disabled={isPlayingAudio}
-                 className={`w-20 h-20 rounded-full flex items-center justify-center transition-all shadow-lg ${isPlayingAudio ? 'bg-indigo-400 animate-pulse' : 'bg-indigo-600 hover:bg-indigo-700 hover:scale-105'}`}
+                 className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center transition-all shadow-lg ${isPlayingAudio ? 'bg-indigo-400 animate-pulse' : 'bg-indigo-600 hover:bg-indigo-700 hover:scale-105'}`}
                >
-                 <Volume2 className="w-8 h-8 text-white" />
+                 <Volume2 className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                </button>
                <span className="mt-3 text-sm font-medium text-slate-600">
                  {isPlayingAudio ? "Lecture en cours..." : "Écouter la dictée"}
@@ -940,11 +978,11 @@ const App: React.FC = () => {
                     key={idx}
                     onClick={() => handleMCQAnswer(idx)}
                     disabled={showAnswer}
-                    className={`w-full p-4 rounded-xl border-2 text-left font-medium transition-all duration-200 flex items-center justify-between ${styleClass}`}
+                    className={`w-full p-3 sm:p-4 rounded-xl border-2 text-left font-medium transition-all duration-200 flex items-center justify-between text-sm sm:text-base ${styleClass}`}
                   >
                     <span>{option}</span>
-                    {showAnswer && isCorrect && <CheckCircle2 className="w-5 h-5 text-green-600" />}
-                    {showAnswer && isSelected && !isCorrect && <AlertCircle className="w-5 h-5 text-red-500" />}
+                    {showAnswer && isCorrect && <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 ml-2" />}
+                    {showAnswer && isSelected && !isCorrect && <AlertCircle className="w-5 h-5 text-red-500 shrink-0 ml-2" />}
                   </button>
                 );
               })}
@@ -959,7 +997,7 @@ const App: React.FC = () => {
                 onChange={(e) => setUserTextAnswer(e.target.value)}
                 disabled={showAnswer || isGrading}
                 placeholder={isDictation ? "Écris le texte que tu entends ici..." : "Écris ta réponse ici..."}
-                className="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 outline-none h-32 resize-none disabled:bg-slate-50"
+                className="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 outline-none h-32 resize-none disabled:bg-slate-50 text-base"
               />
               {!showAnswer && (
                 <Button 
@@ -968,7 +1006,7 @@ const App: React.FC = () => {
                   className="w-full"
                 >
                   {isGrading ? (
-                    <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> Correction par le prof...</span>
+                    <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> Correction...</span>
                   ) : (
                     <span className="flex items-center gap-2">Valider ma réponse <Send className="w-4 h-4" /></span>
                   )}
@@ -979,7 +1017,7 @@ const App: React.FC = () => {
 
           {/* Grading Result / Explanation */}
           {showAnswer && (
-            <div className="mt-8 animate-in fade-in slide-in-from-bottom-4">
+            <div className="mt-6 sm:mt-8 animate-in fade-in slide-in-from-bottom-4">
               {/* Grading for OPEN question */}
               {!isMCQ && gradingResult && (
                  <div className={`p-4 rounded-xl mb-6 border ${gradingResult.isCorrect ? 'bg-green-50 border-green-200' : 'bg-orange-50 border-orange-200'}`}>
@@ -989,7 +1027,7 @@ const App: React.FC = () => {
                          {gradingResult.isCorrect ? 'Correct (+1 pt)' : 'À revoir (0 pt)'}
                        </span>
                     </div>
-                    <p className="text-slate-700 italic border-l-2 pl-3 border-black/10">
+                    <p className="text-slate-700 italic border-l-2 pl-3 border-black/10 text-sm sm:text-base">
                       "{gradingResult.feedback}"
                     </p>
                     <div className="mt-3 text-xs text-slate-500 font-semibold uppercase tracking-wider">Réponse attendue :</div>
@@ -1004,7 +1042,7 @@ const App: React.FC = () => {
                     ? 'bg-green-50 border border-green-200' 
                     : 'bg-indigo-50 border border-indigo-200'
                 }`}>
-                  <p className="font-bold text-slate-800 mb-1">
+                  <p className="font-bold text-slate-800 mb-1 text-sm sm:text-base">
                     {selectedAnswerIndex === currentQuestion.correctAnswerIndex ? 'Bien joué !' : 'Explication :'}
                   </p>
                   <p className="text-slate-600 text-sm leading-relaxed">
@@ -1037,7 +1075,7 @@ const App: React.FC = () => {
             <div className="absolute top-0 right-0 text-3xl animate-bounce">⭐</div>
           )}
         </div>
-        <h2 className="text-4xl font-extrabold text-slate-900 mb-2">{isBrevet || isAnnales ? 'Épreuve terminée !' : 'Quiz terminé !'}</h2>
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2">{isBrevet || isAnnales ? 'Épreuve terminée !' : 'Quiz terminé !'}</h2>
         <p className="text-2xl font-semibold text-indigo-600 mb-6">{score} / {quizContent.questions.length}</p>
         
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 max-w-md w-full mb-8">
@@ -1054,20 +1092,20 @@ const App: React.FC = () => {
 
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
           {!isBrevet && !isAnnales && (
-            <Button onClick={() => setAppState('SHEET')} variant="outline" className="flex-1">
+            <Button onClick={() => setAppState('SHEET')} variant="outline" className="flex-1 justify-center">
               <Book className="w-4 h-4 mr-2" /> Relire la fiche
             </Button>
           )}
           {isBrevet ? (
-            <Button onClick={handleLaunchBrevet} variant="secondary" className="flex-1">
+            <Button onClick={handleLaunchBrevet} variant="secondary" className="flex-1 justify-center">
               <RefreshCcw className="w-4 h-4 mr-2" /> Refaire un Brevet Blanc
             </Button>
           ) : isAnnales ? (
-            <Button onClick={handleLaunchAnnales} variant="secondary" className="flex-1">
+            <Button onClick={handleLaunchAnnales} variant="secondary" className="flex-1 justify-center">
               <RefreshCcw className="w-4 h-4 mr-2" /> Refaire ce sujet
             </Button>
           ) : (
-            <Button onClick={handleSetupQuiz} variant="secondary" className="flex-1">
+            <Button onClick={handleSetupQuiz} variant="secondary" className="flex-1 justify-center">
               <RefreshCcw className="w-4 h-4 mr-2" /> Refaire un quiz
             </Button>
           )}
@@ -1080,8 +1118,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans pb-12">
-      <Header onHomeClick={() => setAppState('HOME')} />
+    <div className="min-h-screen bg-slate-50 font-sans pb-8 sm:pb-12">
+      <Header onHomeClick={handleGoHome} />
       <main className="container mx-auto">
         {appState === 'HOME' && renderHome()}
         {appState === 'SELECTION' && renderSelection()}

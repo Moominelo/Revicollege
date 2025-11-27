@@ -1,20 +1,48 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# RéviCollège 🎓
 
-# Run and deploy your AI Studio app
+![Aperçu de l'application](image.png)
 
-This contains everything you need to run your app locally.
+**RéviCollège** est une application web éducative complète, ergonomique et moderne, conçue pour aider les collégiens français (de la 6ème à la 3ème) à réviser toutes les matières conformément au programme officiel.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1uzDthTfft3KidH0A-O3WSJyTA1dLmD5C
+Elle utilise l'intelligence artificielle (Google Gemini) pour générer des fiches de cours sur mesure, des quiz interactifs, des corrections de copies et même des graphiques scientifiques.
 
-## Run Locally
+## 🚀 Accès à l'application
 
-**Prerequisites:**  Node.js
+L'application est déployée et accessible via le lien suivant :
 
+👉 **[https://revicollege.vercel.app/](https://revicollege.vercel.app/)**
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### ⚠️ Comment y accéder ?
+
+Cette application nécessite une configuration spécifique (Clé API). Pour y accéder :
+1. **Créez un compte** sur [Vercel](https://vercel.com).
+2. **Demandez-moi l'accès** afin que je puisse vous autoriser sur le projet.
+
+---
+
+## 🛠️ Fonctionnalités
+
+- **Fiches de révision** : Générées instantanément sur n'importe quel sujet du programme.
+- **Quiz interactifs** : QCM et questions ouvertes corrigées par IA.
+- **Mode Examen** : Brevet Blanc complet et Annales.
+- **Copie Parfaite** : Modèles de réponses structurées avec analyse pédagogique.
+- **Outils visuels** : Graphiques SVT et Géométrie dynamique (GeoGebra).
+- **Export PDF** : Impression propre type "Fiche Bristol".
+
+## 💻 Installation en local
+
+Si vous préférez installer le projet sur votre ordinateur :
+
+1. Clonez ce dépôt.
+2. Installez les dépendances :
+   ```bash
+   npm install
+   ```
+3. Créez un fichier `.env` à la racine avec votre clé API :
+   ```env
+   API_KEY=votre_cle_gemini_ici
+   ```
+4. Lancez l'application :
+   ```bash
+   npm run dev
+   ```
